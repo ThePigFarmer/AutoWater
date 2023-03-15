@@ -43,9 +43,11 @@ public:
             {5, 9, 13, 17},
         },
     };
+
     void putInEEPROM();
     void getFromEEPROM();
     void begin();
+    void run(uint16_t minsSinceMidnight);
 
-    uint16_t eeIndent;
+    uint16_t eeIndent = 0;
 };

@@ -2,16 +2,13 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include <EEPROM.h>
 #include <BtButton.h>
-#include <DS3231.h>
 
 #include "config.h"
 #include "valves.h"
+#include "timeCalc.h"
 
 BtButton bnt(BUTTON_PIN);
-DS3231 rtc;
-Time t;
 
 valves v;
 
@@ -33,12 +30,8 @@ void loop()
     {
         prevMillis = millis();
 
-        t = rtc.getTime(); // read DS3231 registers at once
-
-        uint16_t minutesSinceMidnight = t.hour * 60 + t.min;
-
         // runValves(minutesSinceMidnight);
-        Serial.println(minutesSinceMidnight);
+        Serial.println(minutesSinceMidnight());
 
         Serial.println(F("\n"));
     } // end timed loop
@@ -50,7 +43,7 @@ void loop()
         // press for eeprom write
         if (bnt.isPressed())
         {
-            // saveValveData();
+            // v.putInEEPROM();
             Serial.println(F("Saved valves to EEPROM"));
         }
     }
