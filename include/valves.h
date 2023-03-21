@@ -7,7 +7,8 @@
 class valves
 {
 public:
-    uint16_t times[4][2][4]{
+    uint16_t times[4][2][4]
+    {
         // valve 1
         {
             // start times
