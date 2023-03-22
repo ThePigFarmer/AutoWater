@@ -12,10 +12,10 @@ public:
         // valve 1
         {
             // start times
-            {1, 5, 9, 13},
+            {3, 5, 9, 13},
 
             // stop times
-            {2, 6, 10, 14},
+            {1357, 6, 10, 14},
         },
 
         // valve 2
@@ -49,7 +49,7 @@ public:
     void putInEEPROM();
     void getFromEEPROM();
     void begin();
-    void run(uint16_t minsSinceMidnight);
+    uint8_t run(uint16_t minsSinceMidnight);
 
     uint16_t eeIndent = 0;
 };

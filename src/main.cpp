@@ -37,7 +37,7 @@ void loop() {
     // press for eeprom write
     if (bnt.isPressed()) {
       // v.putInEEPROM();
-      Serial.println(F("Saved valves to EEPROM"));
+      Serial.println("Saved valves to EEPROM");
     }
   }
 } // end main loop

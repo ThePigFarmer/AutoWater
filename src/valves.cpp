@@ -8,7 +8,7 @@ void valves::begin() { EEPROM.begin(); }
 
 void valves::getFromEEPROM() { EEPROM.get(eeIndent, times); }
 
-bool valves::run(uint16_t minsSinceMidnight) {
+uint8_t valves::run(uint16_t minsSinceMidnight) {
   uint8_t x[4];
 
   for (uint8_t thisValve = 0; thisValve < 4; thisValve++) {
