@@ -3,53 +3,52 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 
-
-class valves
-{
+class valves {
 public:
-    uint16_t times[4][2][4]
-    {
-        // valve 1
-        {
-            // start times
-            {3, 5, 9, 13},
+  uint8_t outPutValveValue[4];
 
-            // stop times
-            {1357, 6, 10, 14},
-        },
+  uint16_t startTimes[4][2][4]{
+      // valve 1
+      {
+          // start times
+          {3, 5, 9, 13},
 
-        // valve 2
-        {
-            // start times
-            {2, 6, 10, 14},
+          // stop times
+          {1357, 6, 10, 14},
+      },
 
-            // stop times
-            {3, 7, 11, 15},
-        },
+      // valve 2
+      {
+          // start times
+          {2, 6, 10, 14},
 
-        // valve 3
-        {
-            // start times
-            {3, 7, 11, 15},
+          // stop times
+          {3, 7, 11, 15},
+      },
 
-            // stop times
-            {4, 8, 12, 16},
-        },
+      // valve 3
+      {
+          // start times
+          {3, 7, 11, 15},
 
-        // valve 4
-        {
-            // start times
-            {4, 8, 12, 16},
+          // stop times
+          {4, 8, 12, 16},
+      },
 
-            // stop times
-            {5, 9, 13, 17},
-        },
-    };
+      // valve 4
+      {
+          // start times
+          {4, 8, 12, 16},
 
-    void putInEEPROM();
-    void getFromEEPROM();
-    void begin();
-    uint8_t run(uint16_t minsSinceMidnight);
+          // stop times
+          {5, 9, 13, 17},
+      },
+  };
 
-    uint16_t eeIndent = 0;
+  void putInEEPROM();
+  void getFromEEPROM();
+  void begin();
+  void run(uint16_t minsSinceMidnight);
+
+  uint16_t eeIndent = 0;
 };
