@@ -27,8 +27,9 @@ void loop() {
   uint16_t minutesSinceMidnight = t.hour * 60 + t.min;
 
   if ((millis() - prevMillis) > timer1) {
+    uint8_t x[4];
     prevMillis = millis();
-    v.run(minutesSinceMidnight);
+    x = v.run(minutesSinceMidnight);
   } // end timed loop
 
   bnt.read();
