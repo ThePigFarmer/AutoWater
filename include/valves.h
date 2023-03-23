@@ -5,44 +5,34 @@
 
 class valves {
 public:
-  uint8_t outPutValveValue[4];
+  uint8_t outputValveValues[4];
 
-  uint16_t startTimes[4][2][4]{
+  uint16_t startTimes[4][4]{
       // valve 1
-      {
-          // start times
-          {3, 5, 9, 13},
-
-          // stop times
-          {1357, 6, 10, 14},
-      },
+      {3, 5, 9, 13},
 
       // valve 2
-      {
-          // start times
-          {2, 6, 10, 14},
-
-          // stop times
-          {3, 7, 11, 15},
-      },
+      {2, 6, 10, 14},
 
       // valve 3
-      {
-          // start times
-          {3, 7, 11, 15},
-
-          // stop times
-          {4, 8, 12, 16},
-      },
+      {3, 7, 11, 15},
 
       // valve 4
-      {
-          // start times
-          {4, 8, 12, 16},
+      {4, 8, 12, 16},
+  };
 
-          // stop times
-          {5, 9, 13, 17},
-      },
+  uint16_t stopTimes[4][4]{
+      // valve 1
+      {3, 5, 9, 13},
+
+      // valve 2
+      {2, 6, 10, 14},
+
+      // valve 3
+      {3, 7, 11, 15},
+
+      // valve 4
+      {4, 8, 12, 16},
   };
 
   void putInEEPROM();
