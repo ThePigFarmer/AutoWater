@@ -1,3 +1,5 @@
+// valves.h
+
 #pragma once
 
 #include <Arduino.h>
@@ -9,10 +11,10 @@ public:
 
   uint16_t startTimes[4][4]{
       // valve 1
-      {3, 5, 9, 13},
+      {1, 5, 9, 13},
 
       // valve 2
-      {2, 6, 10, 14},
+      {1, 6, 10, 14},
 
       // valve 3
       {3, 7, 11, 15},
@@ -23,7 +25,7 @@ public:
 
   uint16_t stopTimes[4][4]{
       // valve 1
-      {3, 5, 9, 13},
+      {5, 5, 9, 13},
 
       // valve 2
       {2, 6, 10, 14},
@@ -38,7 +40,7 @@ public:
   void putInEEPROM();
   void getFromEEPROM();
   void begin();
-  void run(uint16_t minsSinceMidnight);
+  void loop(uint16_t minsSinceMidnight);
 
   uint16_t eeIndent = 0;
 };

@@ -11,8 +11,13 @@ DS3231 rtc;
 Time t;
 valves v;
 
+uint8_t valvePins[4] = {2, 3, 4, 5};
+
+
 uint32_t prevMillis;
 const uint16_t timer1 = 1000;
+
+uint16_t minutesSinceMidnight = 2;
 
 void setup() {
   Serial.begin(MONITOR_SPEED);
@@ -24,12 +29,22 @@ void setup() {
 
 void loop() {
   t = rtc.getTime();
-  uint16_t minutesSinceMidnight = t.hour * 60 + t.min;
+  // uint16_t minutesSinceMidnight = t.hour * 60 + t.min;
+   
 
   if ((millis() - prevMillis) > timer1) {
-    uint8_t x[4];
     prevMillis = millis();
-    x = v.run(minutesSinceMidnight);
+    
+
+    v.loop(minutesSinceMidnight);
+  Serial.println("");
+   
+  for (uint8_t i = 0; i < 4; i++){
+      digitalWrite(valvePins[i], v.outputValveValues[i]);
+  
+  Serial.println(v.outputValveValues[i]);
+  }
+    
   } // end timed loop
 
   bnt.read();
