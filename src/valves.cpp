@@ -44,4 +44,4 @@ void valves::loop(uint16_t minsSinceMidnight)
     }
 
   }
-   }
+}
