@@ -1,0 +1,6 @@
+{
+    "target":"cfgr",
+    "valveNumber":2,
+    "startTimes":["12:00",0,0,0],
+    "stopTimes":["14:00",0,0,0]
+}
