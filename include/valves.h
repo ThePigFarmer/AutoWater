@@ -3,7 +3,7 @@
 #pragma once
 
 #include <Arduino.h>
-#include <EEPROM.h>
+// #include <EEPROM.h>
 
 class valves {
 public:

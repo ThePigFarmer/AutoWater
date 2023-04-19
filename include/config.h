@@ -1,5 +1,6 @@
 #pragma once
 
+#define  MAX_TIMES_IN_DAY 4
 
 #define BUTTON_PIN 7
 
