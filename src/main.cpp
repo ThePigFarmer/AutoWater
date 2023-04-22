@@ -1,17 +1,15 @@
 #define MODE_IDLE 0
 #define MODE_CONFIG 1
 
+#include "config.h"
+#include "timeCalc.h"
+#include "valves.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <BtButton.h>
 #include <DS3231.h>
 #include <Wire.h>
 #include <string.h>
-
-#include "config.h"
-#include "json_comm.h"
-#include "timeCalc.h"
-#include "valves.h"
 
 BtButton bnt(BUTTON_PIN);
 DS3231 rtc;
@@ -63,7 +61,7 @@ void loop()
 
     // target
     char target[9];
-    strcpy(target, json_doc[(char *)"target"]);
+    strcpy(target, json_doc[(const char *)"target"]);
 
     // which valve (valveNumber)
     uint8_t valveNumber;
@@ -75,54 +73,58 @@ void loop()
 
     // if ready for config
     if (programMode == MODE_CONFIG) {
-
-      JsonArray startTimes = json_doc["startTimes"];
-      /*const char *startTimes_0 = startTimes[0]; // "23:59"
-      const char *startTimes_1 = startTimes[1]; // "23:59"
-      const char *startTimes_2 = startTimes[2]; // "23:59"
-      const char *startTimes_3 = startTimes[3]; // "23:59"*/
+      /*
+            JsonArray startTimes = json_doc["startTimes"];
+            /*const char *startTimes_0 = startTimes[0]; // "23:59"
+            const char *startTimes_1 = startTimes[1]; // "23:59"
+            const char *startTimes_2 = startTimes[2]; // "23:59"
+            const char *startTimes_3 = startTimes[3]; // "23:59"
 
       JsonArray stopTimes = json_doc["stopTimes"];
       /*const char *stopTimes_0 = stopTimes[0]; // "23:59"
       const char *stopTimes_1 = stopTimes[1]; // "23:59"
       const char *stopTimes_2 = stopTimes[2]; // "23:59"
-      const char *stopTimes_3 = stopTimes[3]; // "23:59*/
+      const char *stopTimes_3 = stopTimes[3]; // "23:59
 
-      for (uint8_t thisTimeInDay = 0; thisTimeInDay < MAX_TIMES_IN_DAY; thisTimeInDay++) {
-        v.startTimes[valveNumber][thisTimeInDay] = computeMinutesSinceMidnight(startTimes[thisTimeInDay]);
-        v.stopTimes[valveNumber][thisTimeInDay] = computeMinutesSinceMidnight(stopTimes[thisTimeInDay]);
+      for (uint8_t thisTimeInDay = 0; thisTimeInDay < MAX_TIMES_IN_DAY;
+           thisTimeInDay++) {
+        v.startTimes[valveNumber][thisTimeInDay] =
+            computeMinutesSinceMidnight(startTimes[thisTimeInDay]);
+
+        v.stopTimes[valveNumber][thisTimeInDay] =
+            computeMinutesSinceMidnight(stopTimes[thisTimeInDay]);
       }
-
-  
-
     }
+    */
+      Serial.println(programMode);
+
+      t = rtc.getTime();
+      uint16_t minutesSinceMidnight = t.hour * 60 + t.min;
+
+      /* if ((millis() - prevMillis) > timer1) {*/
+      if (!digitalRead(11)) {
+        prevMillis = millis();
+
+        v.loop(minutesSinceMidnight);
+        Serial.println("");
+
+        for (uint8_t i = 0; i < 4; i++) {
+          digitalWrite(valvePins[i], v.outputValveValues[i]);
+
+          Serial.println(v.outputValveValues[i]);
+        }
+
+      } // end timed loop
+
+      bnt.read();
+
+      if (bnt.changed()) {
+        // press for eeprom write
+        if (bnt.isPressed()) {
+          // v.putInEEPROM();
+          Serial.println("Saved valves to EEPROM");
+        }
+      }
+    } // end main loop
   }
-
-  t = rtc.getTime();
-  uint16_t minutesSinceMidnight = t.hour * 60 + t.min;
-
-  /* if ((millis() - prevMillis) > timer1) {*/
-  if (!digitalRead(11)) {
-    prevMillis = millis();
-
-    v.loop(minutesSinceMidnight);
-    Serial.println("");
-
-    for (uint8_t i = 0; i < 4; i++) {
-      digitalWrite(valvePins[i], v.outputValveValues[i]);
-
-      Serial.println(v.outputValveValues[i]);
-    }
-
-  } // end timed loop
-
-  bnt.read();
-
-  if (bnt.changed()) {
-    // press for eeprom write
-    if (bnt.isPressed()) {
-      // v.putInEEPROM();
-      Serial.println("Saved valves to EEPROM");
-    }
-  }
-} // end main loop
+}

@@ -1,15 +1,14 @@
-# CREATED BY VIM-PIO
 all:
-	platformio -f -c vim run
+	platformio run
 
 upload:
-	platformio -f -c vim run --target upload
+	platformio run --target upload
 
 clean:
-	platformio -f -c vim run --target clean
+	platformio run --target clean
 
 program:
-	platformio -f -c vim run --target program
+	platformio run --target program
 
 uploadfs:
-	platformio -f -c vim run --target uploadfs
+	platformio run --target uploadfs

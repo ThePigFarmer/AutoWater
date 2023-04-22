@@ -1,9 +1,10 @@
 // valves.h
 
-#pragma once
+#ifndef VALVES_h
+#define VALVES_h
 
 #include <Arduino.h>
-// #include <EEPROM.h>
+#include <EEPROM.h>
 
 class valves {
 public:
@@ -44,3 +45,5 @@ public:
 
   uint16_t eeIndent = 0;
 };
+
+#endif

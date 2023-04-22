@@ -1,0 +1,28 @@
+clang
+
+%c -std=gnu11 -fno-fat-lto-objects -mmcu=atmega2560 -Os -Wall -ffunction-sections -fdata-sections -flto
+%cpp -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -mmcu=atmega2560 -Os -Wall -ffunction-sections -fdata-sections -flto
+
+-I/home/alanwedel/GitRepo/AutoWater/AutoWater_firmware_basic/include
+-I/home/alanwedel/GitRepo/AutoWater/AutoWater_firmware_basic/src
+-I/home/alanwedel/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src
+-I/home/alanwedel/GitRepo/AutoWater/AutoWater_firmware_basic/.pio/libdeps/megaatmega2560/ArduinoJson/src
+-I/home/alanwedel/GitRepo/AutoWater/AutoWater_firmware_basic/.pio/libdeps/megaatmega2560/DS3231/include
+-I/home/alanwedel/GitRepo/AutoWater/AutoWater_firmware_basic/.pio/libdeps/megaatmega2560/DS3231/src
+-I/home/alanwedel/.platformio/packages/framework-arduino-avr/libraries/Wire/src
+-I/home/alanwedel/GitRepo/AutoWater/AutoWater_firmware_basic/.pio/libdeps/megaatmega2560/BasicTinkering/src
+-I/home/alanwedel/.platformio/packages/framework-arduino-avr/cores/arduino
+-I/home/alanwedel/.platformio/packages/framework-arduino-avr/variants/mega
+-I/home/alanwedel/.platformio/packages/framework-arduino-avr/libraries/HID/src
+-I/home/alanwedel/.platformio/packages/framework-arduino-avr/libraries/SPI/src
+-I/home/alanwedel/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src
+-I/home/alanwedel/.platformio/packages/toolchain-atmelavr/lib/gcc/avr/7.3.0/include-fixed
+-I/home/alanwedel/.platformio/packages/toolchain-atmelavr/lib/gcc/avr/7.3.0/include
+-I/home/alanwedel/.platformio/packages/toolchain-atmelavr/avr/include
+
+-DPLATFORMIO=60106
+-DARDUINO_AVR_MEGA2560
+-DF_CPU=16000000L
+-DARDUINO_ARCH_AVR
+-DARDUINO=10808
+-D__AVR_ATmega2560__
