@@ -5,13 +5,6 @@
 
 #include "config.h"
 #include "timeCalc.h"
-#include "valves.h"
-#include <Arduino.h>
-#include <ArduinoJson.h>
-#include <BtButton.h>
-#include <DS3231.h>
-#include <Wire.h>
-#include <string.h>
 
 BtButton bnt(BUTTON_PIN);
 DS3231 rtc;
@@ -128,4 +121,5 @@ void loop()
         Serial.println("Saved valves to EEPROM");
       }
     }
-  } // end main loop
+  }
+} // end main loop
