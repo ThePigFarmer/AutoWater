@@ -15,7 +15,7 @@ DS3231 rtc;
 valves v;
 Time t;
 
-uint16_t timeStrToMinsSinceMidnight(char timeStr[5]);
+uint16_t timeStrToMinsSinceMidnight(char timeStr[6]);
 
 bool programMode = MODE_IDLE;
 
@@ -78,54 +78,52 @@ void loop()
       return;
     }
 
-    Serial.println(F("making Jsonarrays..."));
     JsonArray startTimes = jsonDoc["startTimes"];
-    // const char *startTimes_0 = startTimes[0]; // "23:59"
-    // const char *startTimes_1 = startTimes[1]; // "23:59"
-    // const char *startTimes_2 = startTimes[2]; // "23:59"
-    // const char *startTimes_3 = startTimes[3]; // "23:59"
 
     JsonArray stopTimes = jsonDoc["stopTimes"];
-    // const char *stopTimes_0 = stopTimes[0]; // "23:59"
-    // const char *stopTimes_1 = stopTimes[1]; // "23:59"
-    // const char *stopTimes_2 = stopTimes[2]; // "23:59"
-    // const char *stopTimes_3 = stopTimes[3]; // "23:59"
-
-    Serial.println(F("done"));
-    Serial.println(F("now starting for loop"));
-    Serial.println("");
 
     for (uint8_t i = 0; i < 4; i++) {
-      char thisStartTime[5];
-      strcpy(thisStartTime, startTimes[i]);
-      char thisStopTime[5];
-      strcpy(thisStopTime, stopTimes[i]);
-      v.startTimes[valveID][i] = timeStrToMinsSinceMidnight(thisStartTime);
-      v.stopTimes[valveID][i] = timeStrToMinsSinceMidnight(thisStopTime);
-      Serial.print(F("start time: "));
-      Serial.println(timeStrToMinsSinceMidnight(thisStartTime));
-      Serial.print(F("stop time: "));
-      Serial.println(timeStrToMinsSinceMidnight(thisStopTime));
-    }
-    Serial.print(F("valve set: "));
-    Serial.println(valveID);
-  }
 
-  t = rtc.getTime();
+      char thisStartTime[6];
+      strcpy(thisStartTime, startTimes[i]);
+
+      char thisStopTime[6];
+      strcpy(thisStopTime, stopTimes[i]);
+
+      Serial.print(F("doing start time: "));
+      v.startTimes[valveID][i] = timeStrToMinsSinceMidnight(thisStartTime);
+      Serial.println(thisStartTime);
+
+      Serial.print(F("doing stop time"));
+      v.stopTimes[valveID][i] = timeStrToMinsSinceMidnight(thisStopTime);
+      Serial.println(thisStopTime);
+    }
+    // Serial.print(F("valve set: "));
+    // Serial.println(valveID);
+  }
+  // end of json
+  // -------------------------------------------------------------------------------------
+  //
+  //
+
+  t = rtc.getTime(); // get time
   uint16_t minsSinceMidnight = t.hour * 60 + t.min;
 
+  // timed loop
   if ((millis() - prevMillis) > timer1) {
-    // if (!digitalRead(11)) {
     prevMillis = millis();
 
+    Serial.println(F("now in valve loop"));
     v.loop(minsSinceMidnight);
-    Serial.println("");
+    Serial.println(F("out of valve loop"));
 
+    Serial.print(F("setting digital pin states: {"));
     for (uint8_t i = 0; i < 4; i++) {
       digitalWrite(valvePins[i], v.outputValveValues[i]);
-
-      Serial.println(v.outputValveValues[i]);
+      Serial.print(v.outputValveValues[i]);
+      Serial.print(",");
     }
+    Serial.println("}");
 
   } // end timed loop
 
@@ -140,13 +138,11 @@ void loop()
   }
 } // end main loop
 
-uint16_t timeStrToMinsSinceMidnight(char timeStr[5])
+uint16_t timeStrToMinsSinceMidnight(char timeStr[6])
 {
   // there must be a better way to do this. however, this works (hopefully)
-  uint8_t hour[3] = {uint8_t(timeStr[0] - '0'), uint8_t(timeStr[1] - '0')};
-  uint8_t min[3] = {uint8_t(timeStr[3] - '0'), uint8_t(timeStr[4] - '0')};
+  uint8_t hour = uint8_t(timeStr[0] - '0') * 10 + uint8_t(timeStr[1] - '0');
+  uint8_t min = uint8_t(timeStr[3] - '0') * 10 + uint8_t(timeStr[4] - '0');
 
-  hour[2] = hour[0] * 10 + hour[1];
-  min[2] = min[0] * 10 + min[1];
-  return uint16_t(hour[2] * 60 + min[2]);
+  return uint16_t(hour * 60 + min);
 }
