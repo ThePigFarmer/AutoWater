@@ -10,14 +10,14 @@
 
 // void valves::getFromEEPROM() { EEPROM.get(eeIndent, outputValveValues); }
 
-void valves::loop(uint16_t minsSinceMidnight)
+void valves::loop(uint16_t minsSinceMidnight, valveTimes vTimes)
 {
   for (uint8_t thisValve = 0; thisValve < 4; thisValve++) {
 
     for (uint8_t thisTime = 0; thisTime < 4; thisTime++) {
 
-      uint16_t thisStartTime = startTimes[thisValve][thisTime];
-      uint16_t thisStopTime = stopTimes[thisValve][thisTime];
+      uint16_t thisStartTime = vTimes.startTimes[thisValve][thisTime];
+      uint16_t thisStopTime = vTimes.stopTimes[thisValve][thisTime];
 
       bool isBetween = between(minsSinceMidnight, thisStartTime, thisStopTime);
 

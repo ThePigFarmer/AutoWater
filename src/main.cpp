@@ -9,13 +9,16 @@
 #include <ArduinoJson.h>
 #include <BtButton.h>
 #include <DS3231.h>
+#include <string.h>
 
 BtButton bnt(BUTTON_PIN);
 DS3231 rtc;
+valveTimes vTimes;
 valves v;
 Time t;
 
 uint16_t timeStrToMinsSinceMidnight(char timeStr[6]);
+char *minsSinceMidnightToTimeStr(uint16_t minsSinceMidnight);
 
 bool programMode = MODE_IDLE;
 
@@ -90,13 +93,9 @@ void loop()
       char thisStopTime[6];
       strcpy(thisStopTime, stopTimes[i]);
 
-      Serial.print(F("doing start time: "));
-      v.startTimes[valveID][i] = timeStrToMinsSinceMidnight(thisStartTime);
-      Serial.println(thisStartTime);
+      vTimes.startTimes[valveID][i] = timeStrToMinsSinceMidnight(thisStartTime);
 
-      Serial.print(F("doing stop time"));
-      v.stopTimes[valveID][i] = timeStrToMinsSinceMidnight(thisStopTime);
-      Serial.println(thisStopTime);
+      vTimes.stopTimes[valveID][i] = timeStrToMinsSinceMidnight(thisStopTime);
     }
     // Serial.print(F("valve set: "));
     // Serial.println(valveID);
@@ -114,7 +113,7 @@ void loop()
     prevMillis = millis();
 
     Serial.println(F("now in valve loop"));
-    v.loop(minsSinceMidnight);
+    v.loop(minsSinceMidnight, vTimes);
     Serial.println(F("out of valve loop"));
 
     Serial.print(F("setting digital pin states: {"));
@@ -145,4 +144,15 @@ uint16_t timeStrToMinsSinceMidnight(char timeStr[6])
   uint8_t min = uint8_t(timeStr[3] - '0') * 10 + uint8_t(timeStr[4] - '0');
 
   return uint16_t(hour * 60 + min);
+}
+
+char *minsSinceMidnighToTimeStr(uint16_t minsSinceMidnight)
+{
+  uint8_t min = minsSinceMidnight % 60;
+  uint8_t hour = (minsSinceMidnight - min) / 60;
+
+  static char timeStr[6];
+  snprintf(timeStr, 6, "%02d:%02d", hour, min);
+
+  return (char *)&timeStr;
 }
