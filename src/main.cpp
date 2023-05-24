@@ -8,14 +8,13 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <BtButton.h>
-#include <DS3231.h>
+#include <RTClib.h>
 #include <string.h>
 
 BtButton bnt(BUTTON_PIN);
-DS3231 rtc;
+RTC_DS3231 rtc;
 valveTimes vTimes;
 valves v;
-Time t;
 
 uint16_t timeStrToMinsSinceMidnight(char timeStr[6]);
 char *minsSinceMidnightToTimeStr(uint16_t minsSinceMidnight);
@@ -40,7 +39,7 @@ void setup()
 
   Serial.setTimeout(30000);
 
-  Wire.begin(); // for DS3231
+  rtc.begin();
 
   Serial.print("Serial and I2C started\n");
 
@@ -68,6 +67,9 @@ void loop()
 
     const char *target = jsonDoc["target"];
     int8_t valveID = jsonDoc["valveID"] | -1;
+    uint16_t mins = jsonDoc["min"];
+
+    Serial.println(minsSinceMidnightToTimeStr(mins));
 
     // should we config?
     if (!(strcmp(target, "cfg") == 0)) {
@@ -105,8 +107,9 @@ void loop()
   //
   //
 
-  t = rtc.getTime(); // get time
-  uint16_t minsSinceMidnight = t.hour * 60 + t.min;
+  DateTime now = rtc.now();
+
+  uint16_t minsSinceMidnight = now.hour() * 60 + now.minute();
 
   // timed loop
   if ((millis() - prevMillis) > timer1) {
@@ -146,7 +149,7 @@ uint16_t timeStrToMinsSinceMidnight(char timeStr[6])
   return uint16_t(hour * 60 + min);
 }
 
-char *minsSinceMidnighToTimeStr(uint16_t minsSinceMidnight)
+char *minsSinceMidnightToTimeStr(uint16_t minsSinceMidnight)
 {
   uint8_t min = minsSinceMidnight % 60;
   uint8_t hour = (minsSinceMidnight - min) / 60;
