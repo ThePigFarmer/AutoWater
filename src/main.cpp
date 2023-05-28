@@ -1,47 +1,64 @@
-#define MODE_IDLE 0
-#define MODE_CONFIG 1
+#ifndef LED_BUILTIN
+#define LED_BUILTIN 2
+#endif
 
 #define between(num, min, max) (((min) <= (num)) && ((num) <= (max)))
+
+#define HTTP_PORT 80
 
 #include "config.h"
 #include "valves.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <BtButton.h>
+#include <ESPAsyncWebServer.h>
 #include <RTClib.h>
+#include <SPIFFS.h>
+#include <WiFi.h>
 #include <string.h>
 
+AsyncWebServer server(HTTP_PORT);
 BtButton bnt(BUTTON_PIN);
 RTC_DS3231 rtc;
 valveTimes vTimes;
 valves v;
 
+const char *WIFI_SSID = "CW Wifi:";
+const char *WIFI_PASS = "Thewedels";
+
 uint16_t timeStrToMinsSinceMidnight(char timeStr[6]);
 char *minsSinceMidnightToTimeStr(uint16_t minsSinceMidnight);
 
-bool programMode = MODE_IDLE;
-
-#if defined(ESPRESSIF32)
-uint8_t valvePins[4] = {16, 17, 18, 19};
-#else
-uint8_t valvePins[4] = {2, 3, 4, 5};
-#endif
+uint8_t valvePins[4] = {4, 18, 19, 21};
 
 uint32_t prevMillis;
 const uint16_t timer1 = 1000;
 
+void initSPIFFS();
+void initWebServer();
+void initWiFi();
+
+// -----------------------------------------------------------------------------
+// main initialization
+// -----------------------------------------------------------------------------
+
 void setup()
 {
   Serial.begin(MONITOR_SPEED);
+  Serial.setTimeout(30000);
 
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(11, INPUT_PULLUP);
 
-  Serial.setTimeout(30000);
-
   rtc.begin();
 
-  Serial.print("Serial and I2C started\n");
+  Serial.println("Serial and rtc started");
+
+  initSPIFFS();
+  initWebServer();
+  initWiFi();
+
+  Serial.println(F("setup done"));
 
 } // end setup
 
@@ -149,6 +166,10 @@ uint16_t timeStrToMinsSinceMidnight(char timeStr[6])
   return uint16_t(hour * 60 + min);
 }
 
+// -----------------------------------------------------------------------------
+// TODO convert minutes since midnight to time string
+// -----------------------------------------------------------------------------
+
 char *minsSinceMidnightToTimeStr(uint16_t minsSinceMidnight)
 {
   uint8_t min = minsSinceMidnight % 60;
@@ -158,4 +179,43 @@ char *minsSinceMidnightToTimeStr(uint16_t minsSinceMidnight)
   snprintf(timeStr, 6, "%02d:%02d", hour, min);
 
   return (char *)&timeStr;
+}
+
+// -----------------------------------------------------------------------------
+// SPIFFS initalization
+// -----------------------------------------------------------------------------
+
+void initSPIFFS()
+{
+  if (!SPIFFS.begin()) {
+    Serial.println(F("can't mount SPIFFS volumn"));
+    while (1)
+      digitalWrite(LED_BUILTIN, millis() % 200 < 50 ? 1 : 0);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// WebServer intalization
+// -----------------------------------------------------------------------------
+
+void initWebServer()
+{
+  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+  server.begin();
+}
+
+// -----------------------------------------------------------------------------
+// WiFi initalization
+// -----------------------------------------------------------------------------
+
+void initWiFi()
+{
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  Serial.printf("trying to connect [%s] ", WiFi.macAddress().c_str());
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(500);
+  }
+  Serial.printf(" %s\n", WiFi.localIP().toString().c_str());
 }
