@@ -18,6 +18,7 @@
 #include <string.h>
 
 AsyncWebServer server(HTTP_PORT);
+AsyncWebSocket ws("/ws");
 BtButton bnt(BUTTON_PIN);
 RTC_DS3231 rtc;
 valveTimes vTimes;
@@ -36,7 +37,10 @@ const uint16_t timer1 = 1000;
 
 void initSPIFFS();
 void initWebServer();
+void initWebSocket();
 void initWiFi();
+void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
+             AwsEventType type, void *arg, uint8_t *data, size_t len);
 
 // -----------------------------------------------------------------------------
 // main initialization
@@ -55,8 +59,9 @@ void setup()
   Serial.println("Serial and rtc started");
 
   initSPIFFS();
-  initWebServer();
   initWiFi();
+  initWebServer();
+  initWebSocket();
 
   Serial.println(F("setup done"));
 
@@ -123,6 +128,7 @@ void loop()
   // -------------------------------------------------------------------------------------
   //
   //
+  ws.cleanupClients();
 
   DateTime now = rtc.now();
 
@@ -205,10 +211,41 @@ void initWebServer()
 }
 
 // -----------------------------------------------------------------------------
-// WiFi initalization
+// WebSocket initalization
 // -----------------------------------------------------------------------------
 
-void initWiFi()
+void initWebSocket() { server.addHandler(&ws); }
+
+// on event
+
+void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
+             AwsEventType type, void *arg, uint8_t *data, size_t len)
+{
+
+  switch (type) {
+  case WS_EVT_CONNECT:
+    Serial.printf("WebSocket client #%u connected from %s\n", client->id(),
+                  client->remoteIP().toString().c_str());
+    break;
+  case WS_EVT_DISCONNECT:
+    Serial.printf("WebSocket client #%u disconnected\n", client->id());
+    break;
+  case WS_EVT_DATA:
+  case WS_EVT_PONG:
+  case WS_EVT_ERROR:
+    break;
+  }
+}
+
+
+
+                                                                  // -----------------------------------------------------------------------------
+                                                                  // WiFi
+                                                                  // initalization
+                                                                  // -----------------------------------------------------------------------------
+
+                                                                  void
+                                                                  initWiFi()
 {
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASS);
