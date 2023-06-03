@@ -27,22 +27,23 @@
 <!--duration entry form-->
 <!-- The form -->
 <div class="form-popup" id="duration-input-form">
-  <form action="/action_page.php" class="form-container">
-    <h1>Login</h1>
+  <form action="" class="form-container">
+    <h1>Duration</h1>
 
-    <label for="email"><b>Email</b></label>
-    <input type="text" placeholder="Enter Email" name="email" required>
+    <label for="start-time"><b>Start time</b></label>
+    <input type="time" placeholder="Enter Time" name="start-time" required>
+    <label for="stop-time"><b>Stop time</b></label>
+    <input type="time" placeholder="Enter Time" name="stop-time" required>
 
-    <label for="psw"><b>Password</b></label>
-    <input type="password" placeholder="Enter Password" name="psw" required>
 
-    <button type="submit" class="btn">Login</button>
+    <button type="submit" class="btn">Submit</button>
     <button type="button" class="btn cancel" onclick="closeDurationEntryForm()">Close</button>
   </form>
 </div>
 
   <!-- script src="index.js"></script -->
   <script src="./app.js" type="text/javascript"></script>
+  <script src="./form.js" type="text/javascript"></script>
 
 </body>
 
