@@ -16,4 +16,9 @@ window.addEventListener("DOMContentLoaded", function () {
 // Duration Entry Form
 function openDurationEntryForm(valveNum, valveNumInDay) {
     alert(valveNum + " " + valveNumInDay);
+    document.getElementById("duration-input-form").style.display = "block";
 }
+
+function closeDurationEntryForm() {
+    document.getElementById("duration-input-form").style.display = "none";
+  }
