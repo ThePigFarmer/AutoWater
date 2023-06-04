@@ -1,10 +1,19 @@
+:root {
+    --dark-blue: rgb(0, 5, 36);
+    --accent-gray: #444;
+    --background-gray: #222;
+    --white: rgb(255, 255, 255);
+    --heading-blue: rgb(62, 62, 255);
+  }
+  
+
 body {
     margin: 40px;
-    background-color: #222;
+    background-color: var(--background-gray);
 }
 
 h1 {
-    color: rgb(62, 62, 255);
+    color: var(--heading-blue);
     text-align: center;
 }
 
@@ -18,7 +27,7 @@ h1 {
     justify-content: center;
   
   text-align: center;
-    grid-gap: 20px;
+    gap: 20px;
 }
 
 .grid-container {
@@ -26,19 +35,19 @@ h1 {
     grid-template-columns: 100px;
     grid-template-rows: 30px 30px 30px 30px;
     grid-gap: 1px;
-    color: #444;
+    color: var(--accent-gray);
     padding: 10px;
     border-radius: 10px;
     border-style: solid;
     width: 100px;
     align-content: center;
-    background-color: rgb(0, 5, 36);
+    background-color: var(--dark-blue);
 }
 
 
 .valve {
-    background-color: #444;
-    color:#ffffff;
+    background-color: var(--accent-gray);
+    color: var(--white);
     border-radius: 4px;
     font-size: 20px;
     cursor: pointer;
@@ -49,7 +58,7 @@ h1 {
 }
 
 .valve-name {
-    color: #ffffff;
+    color: var(--white);
     font-size: 23px;
     font-weight: bolder;
     display: flex;
