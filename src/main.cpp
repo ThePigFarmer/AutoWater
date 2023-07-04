@@ -29,7 +29,7 @@ uint16_t timeStrToMinsSinceMidnight(char timeStr[6]);
 
 uint8_t cntr;
 
-uint8_t valvePins[4] = {4, 18, 19, 21};
+uint8_t valvePins[4] = {4, 18, 19, 23};
 
 void setup() {
   Serial.begin(115200);
@@ -53,17 +53,17 @@ void loop() {
     if ((millis() - prevMillis2) > 5000) {
       prevMillis2 = millis();
 
-      Serial.println(F("now in valve loop"));
+      Serial.println(F("starting valve loop"));
       v.loop(minsSinceMidnight, vTimes);
-      Serial.println(F("out of valve loop"));
+      Serial.println(F("exit valve loop"));
 
-      Serial.print(F("setting digital pin states: {"));
+      Serial.print(F("io: { "));
       for (uint8_t i = 0; i < 4; i++) {
+        Serial.printf("(pin: %u, on: %u) ", valvePins[i],
+                      v.outputValveValues[i]);
         digitalWrite(valvePins[i], v.outputValveValues[i]);
-        Serial.print(v.outputValveValues[i]);
-        Serial.print(",");
       }
-      Serial.println("}");
+      Serial.println(F("}"));
     }
   }
 }

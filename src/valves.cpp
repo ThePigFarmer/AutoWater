@@ -2,7 +2,7 @@
 
 #include "valves.h"
 
-#define between(num, min, max) (((min) <= (num)) && ((num) <= (max)))
+#define between(num, min, max) (((min) <= (num)) && ((num) < (max)))
 
 // void valves::putInEEPROM() { EEPROM.put(0, outputValveValues); }
 
@@ -10,16 +10,29 @@
 
 // void valves::getFromEEPROM() { EEPROM.get(eeIndent, outputValveValues); }
 
-void valves::loop(uint16_t minsSinceMidnight, valveTimes vTimes)
-{
+void valves::loop(uint16_t minsSinceMidnight, valveTimes vTimes) {
+
   for (uint8_t thisValve = 0; thisValve < 4; thisValve++) {
 
+    bool shouldRun = false;
+
     for (uint8_t thisTime = 0; thisTime < 4; thisTime++) {
+
+      if (shouldRun) {
+        Serial.println(F("valve already on"));
+        break;
+      }
 
       uint16_t thisStartTime = vTimes.startTimes[thisValve][thisTime];
       uint16_t thisStopTime = vTimes.stopTimes[thisValve][thisTime];
 
-      bool isBetween = between(minsSinceMidnight, thisStartTime, thisStopTime);
+      if ((thisStartTime == 0) && (thisStopTime == 0)) {
+        shouldRun = false;
+      } else if (between(minsSinceMidnight, thisStartTime, thisStopTime)) {
+        shouldRun = true;
+      } else {
+        shouldRun = false;
+      }
 
       Serial.print("on valve #");
       Serial.print(thisValve);
@@ -32,16 +45,10 @@ void valves::loop(uint16_t minsSinceMidnight, valveTimes vTimes)
       Serial.print("   mins since midnite: ");
       Serial.print(minsSinceMidnight);
       Serial.print("   should run: ");
+      Serial.println(shouldRun);
 
-      if (isBetween) {
-        outputValveValues[thisValve] = 1;
-        Serial.println("true");
-        break;
-      }
-      else {
-        outputValveValues[thisValve] = 0;
-        Serial.println("false");
-      }
+      outputValveValues[thisValve] = shouldRun;
     }
   }
+  Serial.println("");
 }
