@@ -45,7 +45,7 @@ public:
   void putInEEPROM();
   void getFromEEPROM();
   void begin();
-  void loop(uint16_t minsSinceMidnight, valveTimes vTimes);
+  void loop(uint16_t minsSinceMidnight, valveTimes vTimes, bool shouldLog);
 
   uint16_t eeIndent = 0;
 };

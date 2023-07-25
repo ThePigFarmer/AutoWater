@@ -2,8 +2,8 @@
 .pio/
 .cache/
 
-test/
-
 compile_commands.json
 .ccls
 .ccls-cache/
+
+todo.org

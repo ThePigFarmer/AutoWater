@@ -1,6 +1,5 @@
-console.log("starting app.js...");
+console.log("starting valveSelector.js...");
 
-// check times for clicks
 window.addEventListener("DOMContentLoaded", function () {
     let boxes = document.querySelectorAll(".valve");
 
@@ -9,7 +8,6 @@ window.addEventListener("DOMContentLoaded", function () {
             var valveNum = this.classList[1];
             var valveNumInDay = this.id;
             console.log("clicked: valve " + valveNum + ",   id " + valveNumInDay);
-            openDurationEntryForm(valveNum, valveNumInDay);
         });
     });
 });

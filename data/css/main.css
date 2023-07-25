@@ -19,33 +19,32 @@ h1 {
 
 
 
-.valve-container {
+.valves-container {
     display: flex;
-    grid-template-columns: 200px 200px 200px 200px;
     align-items: center;
     width: auto;
     justify-content: center;
-  
-  text-align: center;
+    text-align: center;
     gap: 20px;
 }
 
-.grid-container {
+.valve-container {
     display: grid;
-    grid-template-columns: 100px;
+    grid-template-columns: 120px;
     grid-template-rows: 30px 30px 30px 30px;
     grid-gap: 1px;
     color: var(--accent-gray);
     padding: 10px;
     border-radius: 10px;
     border-style: solid;
-    width: 100px;
+    width: auto;
     align-content: center;
     background-color: var(--dark-blue);
+    font-size: 20px;
 }
 
 
-.valve {
+.valve0, .valve1, .valve2, .valve3 {
     background-color: var(--accent-gray);
     color: var(--white);
     border-radius: 4px;
@@ -66,6 +65,18 @@ h1 {
     align-items: center;
 }
 
-#duration-input-form {
-    display: none;
+#duration-entry-form {
+    display: grid;
+    grid-template-columns: 110px;
+    grid-template-rows: 50px 50px 50px;
+    grid-gap: 3px;
+    color: var(--accent-gray);
+    padding: 10px;
+    border-radius: 10px;
+    border-style: solid;
+    width: 120px;
+    align-content: center;
+    background-color: var(--dark-blue);
+    justify-content: center;
+    
 }

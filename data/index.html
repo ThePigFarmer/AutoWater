@@ -1,51 +1,49 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>AutoWater</title>
   <link rel="stylesheet" href="./css/main.css" type="text/css">
-  <link rel="stylesheet" href="./css/form.css" type="text/css">
 </head>
-
 <body>
-  <h1>AutoWater Config</h1>
-  <hr>
-  <br>
-  <br>
-  <div class="valve-container">
-    <div class="grid-container">
-      <div class="valve-name">Valve 1</div>
-
-      <div class="valve 1" id="1">Box 1</div>
-      <div class="valve 1" id="2">Box 2</div>
-      <div class="valve 1" id="3">Box 3</div>
-      <div class="valve 1" id="4">Box 4</div>
-
+  <header>
+    <h1>AutoWater Config</h1>
+  </header>
+  <div class="valves-container">
+    <div id="duration-entry-form">
+      <div>
+        <label for="start-time">Start time</label> <input type=
+        "time" name="start-time" id="start-time">
+      </div>
+      <div>
+        <label for="stop-time">Stop time</label> <input type="time"
+        name="stop-time" id="stop-time">
+      </div>
+      <div class="form-buttons">
+        <button type="submit" class="btn">Submit</button>
+      </div>
     </div>
-  </div>
-
-<!--duration entry form-->
-<!-- The form -->
-<div class="form-popup" id="duration-input-form">
-  <form action="" class="form-container">
-    <h1>Duration</h1>
-
-    <label for="start-time"><b>Start time</b></label>
-    <input type="time" placeholder="Enter Time" name="start-time" required>
-    <label for="stop-time"><b>Stop time</b></label>
-    <input type="time" placeholder="Enter Time" name="stop-time" required>
-
-
-    <button type="submit" class="btn">Submit</button>
-    <button type="button" class="btn cancel" onclick="closeDurationEntryForm()">Close</button>
-  </form>
-</div>
-
-  <!-- script src="index.js"></script -->
-  <script src="./app.js" type="text/javascript"></script>
-  <script src="./form.js" type="text/javascript"></script>
-
+    <section class="valve-container">
+      <div class="valve-name">
+        Valve 1
+      </div>
+      <div class="valve0">
+        Box 1
+      </div>
+      <div class="valve0">
+        Box 2
+      </div>
+      <div class="valve0">
+        Box 3
+      </div>
+      <div class="valve0">
+        Box 4
+      </div>
+    </section>
+  </div><button id="refresh">Refresh</button>
+  <script src="./js/main.js" type="text/javascript"></script>
+  <script src="./js/valveSelector.js" type=
+  "text/javascript"></script>
+  <script src="./js/form.js" type="text/javascript"></script>
 </body>
-
 </html>

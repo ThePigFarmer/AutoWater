@@ -5,11 +5,7 @@ function openDurationEntryForm(valveNum, valveNumInDay) {
     document.getElementById("duration-input-form").style.display = "block";
 }
 
-function closeDurationEntryForm() {
-    document.getElementById("duration-input-form").style.display = "none";
-}
-
-
+/*
   // form actions
 const form = document.querySelector('form');
 form.addEventListener('submit', function(e) {
@@ -19,3 +15,4 @@ form.addEventListener('submit', function(e) {
     console.log(pair);
   }
 });
+*/
