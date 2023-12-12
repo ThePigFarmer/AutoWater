@@ -1,15 +1,27 @@
-var serverIP = "10.0.0.22"
+// var serverIP = `${window.location.hostname}`
+var serverIP = "10.0.0.150";
 var gateway = "ws://" + serverIP +"/ws";
 var websocket;
 
 var valveMaxNumber = 4;
 var valveMaxTimesPerDay = 4;
 
+var activeValveID;
+var activeTimeInDay;
+
+function setActiveTimeElement(valveID, timeInDay) {
+  activeValveID = valveID;
+  activeTimeInDay = timeInDay;
+}
+
 window.addEventListener('load', onLoad);
 
 // init on load ----------------------------------------------------------------
 
 function onLoad(event) {
+    initButtons();
+    initForm();
+    initValveSelector();
     initWebSocket();
 }
 
@@ -25,7 +37,7 @@ function initWebSocket() {
 
 function onOpen(event) {
     console.log('Connection opened');
-    initButton();
+    getValvesTimesFromServer();
 }
 
 function onClose(event) {
@@ -43,15 +55,14 @@ function handleJson(data)
    console.log("JSON from server -------------------------------------------------------");
    console.log(data);
    console.log("------------------------------------------------------------------------");
-   // document.getElementById('led').className = data.status;
 
-  // this is were the JSON is PROCCESSED >>> ...
+  // parse json
   var action = data.action;
   if (action == "cfgValve") {
     console.log("setting the valve times");
     var valveID = data.valveID;
     if ((valveID == null) || (valveID < 0) || (valveID > (valveMaxNumber - 1))) {
-      console.log("shoot! invalid valve STOP");
+      console.log("invalid valve");
       return;
 
     } else { // valve is valid
@@ -64,24 +75,35 @@ function handleJson(data)
       updateValveTimes(valveID, startTimes, stopTimes);
     }
   }
+
+  /*
+  if (action == "rtcTime") {
+    var timeStr = data.timeStr;
+    document.getElementById("rtc-time").innerHTML = timeStr;
+  }
+  */
 }
 
 // get a valve's times from server
-function requestValveTimesFromServer(valveID) {
+function getValveTimesFromServer(valveID) {
   websocket.send(JSON.stringify({'action':'getValveCfg','valveID':valveID}));
 }
 
 // get ALL valve's times from server
-// look! it runs the above function 4 times!
-function requestAllValvesTimesFromServer() {
+function getValvesTimesFromServer() {
   for (var i = 0; i < valveMaxNumber; i++) {
-    requestValveTimesFromServer(i);
+    getValveTimesFromServer(i);
   }
 }
 
-// init the 'refresh button'
-function initButton() {
-  document.getElementById('refresh').addEventListener('click', () => requestValveTimesFromServer(0));
+// init the buttons
+function initButtons() {
+  document.getElementById('refresh').addEventListener('click', () => {
+    getValvesTimesFromServer();
+  });
+  document.getElementById('commit').addEventListener('click', () => {
+    commitValveTimesToEEPROM();
+  })
 }
 
 // update the gui values
@@ -90,10 +112,6 @@ function updateValveTimes(valveID, startTimes, stopTimes) {
 
   // illiterate through the valve times in day, setting the gui
   for (var thisTime = 0; thisTime < valveMaxTimesPerDay; thisTime++) {
-
-    // used to find the right valve times in the gui
-    var valveClassName = "valve" + valveID;
-    console.log(valveClassName);
 
     // the string showing the valve times ("12:00 - 23:59")
     var valveStartStopTimeStr;
@@ -105,10 +123,61 @@ function updateValveTimes(valveID, startTimes, stopTimes) {
      valveStartStopTimeStr = "" + startTimes[thisTime] + " - " + stopTimes[thisTime];
     }
 
-    console.log(valveStartStopTimeStr);
+    // console.log(valveStartStopTimeStr);
+
+    var thisElement = valveID * valveMaxNumber + thisTime;
 
     // I can't think of a good name to call the variable... x isn't intuitive. But that's why you have a BRAIN
-    var x = document.getElementsByClassName(valveClassName);
-    x.item(thisTime).innerHTML = valveStartStopTimeStr;
+    var x = document.querySelectorAll(".time");
+    console.log(thisElement);
+    x.item(thisElement).innerHTML = valveStartStopTimeStr;
   }
+}
+
+function sendSetTimesFromInputToServer(valveID, timeInDay, startTime, stopTime) {
+  console.log("valveID: " + valveID);
+  websocket.send(JSON.stringify({'action':'setValveCfg','valveID':valveID, 'timeInDay':timeInDay, 'startTime':startTime, 'stopTime': stopTime}));
+}
+
+function initValveSelector() {
+  let boxes = document.querySelectorAll(".time");
+
+  Array.from(boxes, function(box) {
+    box.addEventListener("click", function() {
+      var elementIndexStr = this.classList[1];
+      var elementIndex = Number(elementIndexStr);
+      console.log("elementIndex: " + elementIndex);
+
+      var xy = computeXYFromIndex(elementIndex);
+
+      setActiveTimeElement(xy[0], xy[1]);
+      console.log("active element: (" + xy[0] + ", " + xy[1] + ")");
+    });
+  });
+}
+
+
+function initForm() {
+  const form = document.querySelector('#duration-entry-form');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    console.log("click: submit");
+    var startTime = form.querySelector('#start-time').value;
+    var stopTime = form.querySelector('#stop-time').value;
+
+    console.log(activeValveID + ", " + activeTimeInDay + ", " + startTime + ", " + stopTime);
+    sendSetTimesFromInputToServer(activeValveID, activeTimeInDay, startTime, stopTime);
+  });
+}
+
+function commitValveTimesToEEPROM()
+{
+  websocket.send(JSON.stringify({'action':'commitValveTimes'}));
+}
+
+function computeXYFromIndex(i) {
+  var x = Math.floor(i / 4);
+  var y = i % 4;
+  return [x, y];
 }

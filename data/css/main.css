@@ -44,7 +44,7 @@ h1 {
 }
 
 
-.valve0, .valve1, .valve2, .valve3 {
+.time {
     background-color: var(--accent-gray);
     color: var(--white);
     border-radius: 4px;
@@ -78,5 +78,20 @@ h1 {
     align-content: center;
     background-color: var(--dark-blue);
     justify-content: center;
-    
 }
+
+#bnt-container {
+    display: flex;
+    align-content: center;
+    text-align: center;
+    justify-content: center;
+    justify-items: center;
+}
+
+
+
+/*#rtc-time-display {
+    background-color: var(--accent-gray);
+    color: var(--white);
+}
+*/
