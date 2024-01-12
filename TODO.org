@@ -1,17 +1,6 @@
 #+title: AutoWater Irrigation controller
-#+author: Alan Wedel
+#+author: anyone_who_contributes
 
-* AutoWater Irrigation controller
-** DONE fix esp32 serial problems
-** DONE add rtc.timestr() debug into Serial monitor
-** DONE make minsSinceMidnight2timestr() function
-** DONE verify that non-intuitive (code based) controller works
-** DONE make esp32 websocket server
-** DONE make serial based logging
-** DONE make websocket client (probably python based)
-** DONE make json API
-** DONE make duration display system
-** DONE make valve selector open input box
-** DONE make it show valves times on open
-** TODO make preprocessor to set time manually, set time with npt or just use ntp
-** TODO store valve times in non volatile memory
+* Todo
+- the code needs to be more modular
+- networking should be persistant
