@@ -7,8 +7,8 @@ upload:
 clean:
 	platformio run --target clean
 
-program:
-	platformio run --target program
+upload:
+	platformio run --target upload
 
 uploadfs:
 	platformio run --target uploadfs
