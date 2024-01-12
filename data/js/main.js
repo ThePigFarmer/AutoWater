@@ -1,5 +1,5 @@
-// var serverIP = `${window.location.hostname}`
-var serverIP = "10.0.0.150";
+var serverIP = `${window.location.hostname}` // automatic
+// var serverIP = "10.0.0.150"; // manual
 var gateway = "ws://" + serverIP +"/ws";
 var websocket;
 
@@ -77,6 +77,7 @@ function handleJson(data)
   }
 
   /*
+   * future idea to see system time
   if (action == "rtcTime") {
     var timeStr = data.timeStr;
     document.getElementById("rtc-time").innerHTML = timeStr;

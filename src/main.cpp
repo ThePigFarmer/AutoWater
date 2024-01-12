@@ -58,17 +58,17 @@ uint16_t timeStrToMinsSinceMidnight(char timeStr[6]);
 
 struct ValveTimes {
   uint16_t start[4][4]{
-    {0, 0, 0, 0},
-    {0, 0, 0, 0},
-    {0, 0, 0, 0},
-    {0, 0, 0, 0},
+      {0, 0, 0, 0},
+      {0, 0, 0, 0},
+      {0, 0, 0, 0},
+      {0, 0, 0, 0},
   };
 
   uint16_t stop[4][4]{
-    {0, 0, 0, 0},
-    {0, 0, 0, 0},
-    {0, 0, 0, 0},
-    {0, 0, 0, 0},
+      {0, 0, 0, 0},
+      {0, 0, 0, 0},
+      {0, 0, 0, 0},
+      {0, 0, 0, 0},
   };
 } valveTimes;
 
@@ -100,43 +100,43 @@ void loop() {
 
   ws.cleanupClients();
   doSerialLogging();
-    prevMillis1 = millis();
+  prevMillis1 = millis();
 
-    DateTime now = rtc.now();
+  DateTime now = rtc.now();
 
-    char timestr[9] = "hh:mm:ss";
-    sprintf(timestr, "%02u:%02u:%02u", now.hour(), now.minute(), now.second());
+  char timestr[9] = "hh:mm:ss";
+  sprintf(timestr, "%02u:%02u:%02u", now.hour(), now.minute(), now.second());
 
-    if (shouldLog.time) {
-      Serial.println(timestr);
-    }
+  if (shouldLog.time) {
+    Serial.println(timestr);
+  }
 
-    uint16_t minsSinceMidnight = now.hour() * 60 + now.minute();
+  uint16_t minsSinceMidnight = now.hour() * 60 + now.minute();
 
-    if ((millis() - prevMillis2) > 5000) {
-      prevMillis2 = millis();
+  if ((millis() - prevMillis2) > 5000) {
+    prevMillis2 = millis();
 
-      valvesLoop(minsSinceMidnight, shouldLog.valveLoop);
+    valvesLoop(minsSinceMidnight, shouldLog.valveLoop);
 
-      for (uint8_t i = 0; i < VALVES_MAX_NUM; i++) {
-        if (shouldLog.valves) {
-          Serial.printf("(pin: %u, on: %u\n) ", valvePins[i],
-                        valvesOutputValues[i]);
-        }
-
-        digitalWrite(valvePins[i], valvesOutputValues[i]);
+    for (uint8_t i = 0; i < VALVES_MAX_NUM; i++) {
+      if (shouldLog.valves) {
+        Serial.printf("(pin: %u, on: %u\n) ", valvePins[i],
+                      valvesOutputValues[i]);
       }
-    }
-/*
-  // button stuff
-  bnt.read();
 
-  if (bnt.changed()) {
-    if (bnt.isPressed()) {
-      sendRTCTimeToClients(timestr);
+      digitalWrite(valvePins[i], valvesOutputValues[i]);
     }
   }
-  */
+  /*
+    // button stuff
+    bnt.read();
+
+    if (bnt.changed()) {
+      if (bnt.isPressed()) {
+        sendRTCTimeToClients(timestr);
+      }
+    }
+    */
 } // end main loop
 
 // -----------------------------------------------------------------------------
@@ -187,7 +187,8 @@ void doSerialLogging() {
 
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
   AwsFrameInfo *info = (AwsFrameInfo *)arg;
-  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
+  if (info->final && info->index == 0 && info->len == len &&
+      info->opcode == WS_TEXT) {
 
     const uint8_t size = JSON_OBJECT_SIZE(5);
 
@@ -312,7 +313,7 @@ void initWiFi() {
     Serial.print(".");
     delay(500);
   }
-  Serial.printf(" %s\n", WiFi.localIP().toString().c_str());
+  Serial.printf("\n%s\n", WiFi.localIP().toString().c_str());
 }
 
 void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
@@ -370,19 +371,13 @@ void sendValveTimesToClients(uint8_t valveID) {
 void setValveTime(uint8_t valveID, uint8_t timeInDay, uint16_t calcedStartTime,
                   uint16_t calcedStopTime) {
 
- valveTimes.start[valveID][timeInDay] = calcedStartTime;
- valveTimes.stop[valveID][timeInDay] = calcedStopTime;
-
+  valveTimes.start[valveID][timeInDay] = calcedStartTime;
+  valveTimes.stop[valveID][timeInDay] = calcedStopTime;
 }
 
-void putValvesTimesInEEPROM() {
-  EEPROM.put(0, valveTimes);
-}
+void putValvesTimesInEEPROM() { EEPROM.put(0, valveTimes); }
 
-void getValvesTimesFromEEPROM() {
-  EEPROM.get(0, valveTimes);
-}
-
+void getValvesTimesFromEEPROM() { EEPROM.get(0, valveTimes); }
 
 void valvesLoop(uint16_t minsSinceMidnight, bool shouldLog) {
 
