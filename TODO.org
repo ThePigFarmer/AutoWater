@@ -1,6 +1,8 @@
 #+title: AutoWater Irrigation controller
 #+author: anyone_who_contributes
 
+* To Consider doing
+- Set password and ssid from web ui
+
 * Todo
-- the code needs to be more modular
-- networking should be persistant
+- clean up code some #myissue #normal #obfuscate

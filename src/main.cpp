@@ -21,7 +21,7 @@ AsyncWebSocket ws("/ws");
 
 BtButton bnt(34);
 
-IPAddress staticIP(10, 0, 0, 150);
+IPAddress staticIP(10, 0, 0, 239);
 IPAddress gateway(10, 0, 0, 254);
 IPAddress subnet(255, 255, 255, 0);
 IPAddress dns(10, 0, 0, 254);
@@ -33,9 +33,6 @@ bool isValveValid(int8_t valveID);
 const char *ssid = "CW Wifi";
 const char *password = "Thewedels";
 
-char *minsSinceMidnightToTimestr(uint16_t minsSinceMidnight);
-
-void doSerialLogging();
 void initValvePins();
 void initRTC();
 void getValvesTimesFromEEPROM();
@@ -75,14 +72,6 @@ struct ValveTimes {
 uint8_t valvePins[4] = {4, 18, 19, 23};
 uint8_t valvesOutputValues[4];
 
-struct Log {
-  bool json = true;
-  bool valveLoop = false;
-  bool time = false;
-  bool valves = false;
-};
-Log shouldLog;
-
 void setup() {
   Serial.begin(BAUD_RATE);
   EEPROM.begin(130);
@@ -99,7 +88,6 @@ void setup() {
 void loop() {
 
   ws.cleanupClients();
-  doSerialLogging();
   prevMillis1 = millis();
 
   DateTime now = rtc.now();
@@ -107,23 +95,16 @@ void loop() {
   char timestr[9] = "hh:mm:ss";
   sprintf(timestr, "%02u:%02u:%02u", now.hour(), now.minute(), now.second());
 
-  if (shouldLog.time) {
-    Serial.println(timestr);
-  }
-
   uint16_t minsSinceMidnight = now.hour() * 60 + now.minute();
 
   if ((millis() - prevMillis2) > 5000) {
     prevMillis2 = millis();
 
-    valvesLoop(minsSinceMidnight, shouldLog.valveLoop);
+    valvesLoop(minsSinceMidnight, false);
 
     for (uint8_t i = 0; i < VALVES_MAX_NUM; i++) {
-      if (shouldLog.valves) {
-        Serial.printf("(pin: %u, on: %u\n) ", valvePins[i],
-                      valvesOutputValues[i]);
-      }
-
+      // Serial.printf("(pin: %u, on: %u\n) ", valvePins[i],
+      // valvesOutputValues[i]);
       digitalWrite(valvePins[i], valvesOutputValues[i]);
     }
   }
@@ -161,30 +142,6 @@ uint16_t timeStrToMinsSinceMidnight(char timestr[6]) {
   return uint16_t(hour * 60 + min);
 }
 
-// IS this at all necessary? can be useful...
-void doSerialLogging() {
-  if (Serial.available() == 1) {
-
-    char inByte = Serial.read();
-
-    switch (inByte) {
-    case 'j':
-      shouldLog.json = !shouldLog.json;
-      break;
-    case 't':
-      shouldLog.time = !shouldLog.time;
-      break;
-    case 'v':
-      shouldLog.valves = !shouldLog.valves;
-      break;
-    case 'l':
-      shouldLog.valveLoop = !shouldLog.valveLoop;
-      break;
-    }
-  } else
-    return;
-}
-
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
   AwsFrameInfo *info = (AwsFrameInfo *)arg;
   if (info->final && info->index == 0 && info->len == len &&
@@ -199,66 +156,64 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
       Serial.println(err.c_str());
       return;
     } else {
-      if (shouldLog.json) {
+      /*if (shouldLog.json) {
         Serial.print(F("Recevied valid json document with "));
         Serial.print(json.size());
         Serial.println(F(" elements."));
         Serial.println(F("Pretty printed back at you:"));
         serializeJsonPretty(json, Serial);
-        Serial.println("");
-      }
+        Serial.println("");*/
+    }
 
-      // parse json ------------------------------------------------------------
+    // parse json ------------------------------------------------------------
 
-      const char *action = json["action"];
-      Serial.printf("action: %s\n", action);
+    const char *action = json["action"];
+    Serial.printf("action: %s\n", action);
 
-      // valveID (if any)
-      uint8_t valveID = json["valveID"];
-      Serial.printf("valveID: %i\n", valveID);
+    // valveID (if any)
+    uint8_t valveID = json["valveID"];
+    Serial.printf("valveID: %i\n", valveID);
 
-      bool valveIsValid = (valveID < VALVES_MAX_NUM) ? true : false;
+    bool valveIsValid = (valveID < VALVES_MAX_NUM) ? true : false;
 
-      Serial.printf("is valve valid: %s\n", valveIsValid ? "true" : "false");
+    Serial.printf("is valve valid: %s\n", valveIsValid ? "true" : "false");
 
-      // now for the if (json.isWhatever)
-      if ((strcmp(action, "getValveCfg") == 0) && (valveIsValid)) {
-        sendValveTimesToClients(valveID);
-        return;
-      }
+    // now for the if (json.isWhatever)
+    if ((strcmp(action, "getValveCfg") == 0) && (valveIsValid)) {
+      sendValveTimesToClients(valveID);
+      return;
+    }
 
-      if ((strcmp(action, "setValveCfg") == 0) && valveIsValid) {
-        uint8_t timeInDay = json["timeInDay"];
-        Serial.printf("time in day: %u", timeInDay);
+    if ((strcmp(action, "setValveCfg") == 0) && valveIsValid) {
+      uint8_t timeInDay = json["timeInDay"];
+      Serial.printf("time in day: %u", timeInDay);
 
-        char strConversionBuffer[6]; // for converting const char* to char*. if
-                                     // someone knows of a better way, please
-                                     // let me know
+      char strConversionBuffer[6]; // for converting const char* to char*. if
+                                   // someone knows of a better way, please
+                                   // let me know
 
-        strcpy(strConversionBuffer, json["startTime"]);
-        uint16_t calcedStartTime =
-            timeStrToMinsSinceMidnight(strConversionBuffer);
+      strcpy(strConversionBuffer, json["startTime"]);
+      uint16_t calcedStartTime =
+          timeStrToMinsSinceMidnight(strConversionBuffer);
 
-        strcpy(strConversionBuffer, json["stopTime"]);
-        uint16_t calcedStopTime =
-            timeStrToMinsSinceMidnight(strConversionBuffer);
+      strcpy(strConversionBuffer, json["stopTime"]);
+      uint16_t calcedStopTime = timeStrToMinsSinceMidnight(strConversionBuffer);
 
-        setValveTime(valveID, timeInDay, calcedStartTime, calcedStopTime);
-        Serial.println("setValveTime");
-        putValvesTimesInEEPROM();
-        Serial.println("putValvesTimesInEEPROM");
-        getValvesTimesFromEEPROM();
-        Serial.println("getValvesTimesFromEEPROM");
-        sendValveTimesToClients(valveID);
-        Serial.println("sendValvesTimesToClients");
+      setValveTime(valveID, timeInDay, calcedStartTime, calcedStopTime);
+      Serial.println("setValveTime");
+      putValvesTimesInEEPROM();
+      Serial.println("putValvesTimesInEEPROM");
+      getValvesTimesFromEEPROM();
+      Serial.println("getValvesTimesFromEEPROM");
+      sendValveTimesToClients(valveID);
+      Serial.println("sendValvesTimesToClients");
 
-        return;
-      }
+      return;
+    }
 
-      if (strcmp(action, "commitValveTimes") == 0) {
-        EEPROM.commit();
-        return;
-      }
+    if (strcmp(action, "commitValveTimes") == 0) {
+      EEPROM.commit();
+      return;
     }
   }
 }
@@ -313,7 +268,7 @@ void initWiFi() {
     Serial.print(".");
     delay(500);
   }
-  Serial.printf("\n%s\n", WiFi.localIP().toString().c_str());
+  Serial.printf("\nconnected, ip: %s\n", WiFi.localIP().toString().c_str());
 }
 
 void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
@@ -368,6 +323,7 @@ void sendValveTimesToClients(uint8_t valveID) {
   ws.textAll(jsonBuffer);
 }
 */
+
 void setValveTime(uint8_t valveID, uint8_t timeInDay, uint16_t calcedStartTime,
                   uint16_t calcedStopTime) {
 
