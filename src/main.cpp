@@ -1,3 +1,12 @@
+// #define NETWORK_MODE_AP
+#define NETWORK_MODE_STATION
+
+// STATION MODE
+#define WIFI_SSID "CW Wifi"
+#define WIFI_PASSWORD "Thewedels"
+#define WIFI_TIMEOUT_MS 20000
+#define WIFI_RECOVER_TIME_MS 30000 
+
 #define between(num, min, max) (((min) <= (num)) && ((num) < (max)))
 
 #define BAUD_RATE monitor_speed
@@ -26,6 +35,8 @@ IPAddress gateway(10, 0, 0, 254);
 IPAddress subnet(255, 255, 255, 0);
 IPAddress dns(10, 0, 0, 254);
 
+WiFiServer apServer(80);
+
 RTC_DS3231 rtc;
 
 bool isValveValid(int8_t valveID);
@@ -48,6 +59,48 @@ void sendValveTimesToClients(uint8_t valveID);
 void setValveTime(uint8_t valveID, uint8_t timeInDay, uint16_t calcedStartTime,
                   uint16_t calcedStopTime);
 void valvesLoop(uint16_t minsSinceMidnight, bool shouldLog);
+
+/**
+ * Task: monitor the WiFi connection and keep it alive!
+ * 
+ * When a WiFi connection is established, this task will check it every 10 seconds 
+ * to make sure it's still alive.
+ * 
+ * If not, a reconnect is attempted. If this fails to finish within the timeout,
+ * the ESP32 will wait for it to recover and try again.
+ */
+void keepWiFiAlive(void * parameter) {
+  for(;;){
+    if(WiFi.status() == WL_CONNECTED){
+      vTaskDelay(10000 / portTICK_PERIOD_MS);
+      continue;
+    }
+
+    Serial.println("[WIFI] Connecting");
+    if (WiFi.config(staticIP, gateway, subnet, dns, dns) == false) {
+      Serial.println("Configuration failed.");
+    }
+
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+    unsigned long startAttemptTime = millis();
+
+    // Keep looping while we're not connected and haven't reached the timeout
+    while (WiFi.status() != WL_CONNECTED && 
+           millis() - startAttemptTime < WIFI_TIMEOUT_MS){;}
+
+    // When we couldn't make a WiFi connection (or the timeout expired)
+    // sleep for a while and then retry.
+    if(WiFi.status() != WL_CONNECTED){
+      Serial.println("[WIFI] FAILED");
+      vTaskDelay(WIFI_RECOVER_TIME_MS / portTICK_PERIOD_MS);
+      continue;
+    }
+
+    Serial.println("[WIFI] Connected: " + WiFi.localIP());
+  }
+}
 
 uint32_t prevMillis1, prevMillis2; // for timed loop
 
@@ -76,6 +129,18 @@ void setup() {
   Serial.begin(BAUD_RATE);
   EEPROM.begin(130);
   initValvePins();
+
+  /*#ifdef WIFI_MODE_STATION
+  xTaskCreatePinnedToCore(keepWiFiAlive,
+                          "keepWiFiAlive",  // Task name
+                          5000,             // Stack size (bytes)
+                          NULL,
+                          1,                // Task priority
+                          NULL,             // Task handle
+                          ARDUINO_RUNNING_CORE);
+                          #endif*/
+
+
   initWiFi();
   initSPIFFS();
   initRTC();
@@ -108,16 +173,6 @@ void loop() {
       digitalWrite(valvePins[i], valvesOutputValues[i]);
     }
   }
-  /*
-    // button stuff
-    bnt.read();
-
-    if (bnt.changed()) {
-      if (bnt.isPressed()) {
-        sendRTCTimeToClients(timestr);
-      }
-    }
-    */
 } // end main loop
 
 // -----------------------------------------------------------------------------
@@ -257,6 +312,8 @@ void initWebSocket() {
 }
 
 void initWiFi() {
+#ifndef NETWORK_MODE_AP
+
   if (WiFi.config(staticIP, gateway, subnet, dns, dns) == false) {
     Serial.println("Configuration failed.");
   }
@@ -269,6 +326,23 @@ void initWiFi() {
     delay(500);
   }
   Serial.printf("\nconnected, ip: %s\n", WiFi.localIP().toString().c_str());
+
+#else // init wifi ap
+
+  // TODO here
+  #define WIFI_AP_SSID "AutoWater AP"
+  #define WIFI_AP_PASS "water!"
+
+  Serial.print("Setting AP (Access Point)…");
+  // Remove the password parameter, if you want the AP (Access Point) to be open
+  WiFi.softAP(ssid, password);
+
+  IPAddress IP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(IP);
+
+  apServer.begin();
+#endif
 }
 
 void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
